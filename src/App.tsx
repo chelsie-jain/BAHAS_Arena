@@ -20,7 +20,7 @@ import { DEBATE_TOPICS, SPECTATOR_SCRIPTS, generateAIReply } from './utils/debat
 import { translateText, analyzeSentimentAndConcession, SUPPORTED_LANGUAGES } from './utils/translator';
 import { speechEngine } from './utils/speechEngine';
 import { soundEngine } from './utils/audioEffects';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw, Bot, Square } from 'lucide-react';
 import './App.css';
 
 export function App() {
@@ -37,7 +37,7 @@ export function App() {
     name: 'Kabir',
     language: 'hi',
     avatar: '🇮🇳',
-    color: '#FFAA00',
+    color: '#D97706',
     role: 'con',
     stanceTitle: 'Empower Builders with AI Taste',
     isAI: false,
@@ -48,7 +48,7 @@ export function App() {
     name: 'Jean-Luc',
     language: 'fr',
     avatar: '🇫🇷',
-    color: '#CCFF00',
+    color: '#2563EB',
     role: 'pro',
     stanceTitle: 'Automated Coders Replace Juniors',
     isAI: true,
@@ -79,10 +79,11 @@ export function App() {
   const [showConsensusModal, setShowConsensusModal] = useState<boolean>(false);
   const [showZeroModal, setShowZeroModal] = useState<boolean>(false);
 
-  // Spectator Simulation State
+  // Spectator & Sparring Simulation State
   const [isSpectating, setIsSpectating] = useState<boolean>(false);
   const spectatorStepRef = useRef<number>(0);
   const spectatorTimeoutRef = useRef<any>(null);
+  const sparringTimeoutRef = useRef<any>(null);
 
   // Heat Stage derivation
   const getHeatStage = (heat: number): HeatStage => {
@@ -94,12 +95,15 @@ export function App() {
 
   const heatStage = getHeatStage(heatScore);
 
-  // Trigger tension rumble when boiling
+  // Stable UI: No screen shake, audio pulse only when heat crosses into boiling
   useEffect(() => {
     if (heatStage === 'boiling') {
       soundEngine.playTensionPulse();
     }
   }, [heatStage]);
+
+  // Track if debate is actively in progress
+  const isArguing = isSpectating || activeSpeakerId !== null || isListeningA || isListeningB;
 
   // Update Debater Language
   const handleUpdateDebaterLang = (debaterId: string, lang: LanguageCode) => {
@@ -130,7 +134,9 @@ export function App() {
 
   const resetDebateState = () => {
     speechEngine.cutOffSpeech();
+    speechEngine.stopListening();
     if (spectatorTimeoutRef.current) clearTimeout(spectatorTimeoutRef.current);
+    if (sparringTimeoutRef.current) clearTimeout(sparringTimeoutRef.current);
     spectatorStepRef.current = 0;
     setIsSpectating(false);
     setActiveSpeakerId(null);
@@ -268,7 +274,8 @@ export function App() {
 
     // 5. In Solo Sparring Mode, generate AI Opponent Rebuttal
     if (mode === 'sparring' && isA && !isSpectating) {
-      setTimeout(() => {
+      if (sparringTimeoutRef.current) clearTimeout(sparringTimeoutRef.current);
+      sparringTimeoutRef.current = setTimeout(() => {
         const aiResponse = generateAIReply(
           rawText,
           debaterA.language,
@@ -354,14 +361,46 @@ export function App() {
     setTimeout(runSpectatorStep, 600);
   };
 
+  const handleResumeSpectator = () => {
+    setIsSpectating(true);
+    if (spectatorTimeoutRef.current) clearTimeout(spectatorTimeoutRef.current);
+    spectatorTimeoutRef.current = setTimeout(runSpectatorStep, 400);
+  };
+
+  const handleRestartSpectator = () => {
+    handleStartSpectator();
+  };
+
   const handleStopSpectator = () => {
     setIsSpectating(false);
     if (spectatorTimeoutRef.current) clearTimeout(spectatorTimeoutRef.current);
     speechEngine.cutOffSpeech();
+    setActiveSpeakerId(null);
+    setInterruptedSpeakerId(null);
+  };
+
+  // Universal Stop Button across all modes (Solo Sparring, Split Duo, Spectator)
+  const handleStopArgue = () => {
+    // 1. Immediately cut off all synthesized and queued audio
+    speechEngine.cutOffSpeech();
+
+    // 2. Stop speech recognition microphones
+    speechEngine.stopListening();
+    setIsListeningA(false);
+    setIsListeningB(false);
+
+    // 3. Halt pending AI timeouts and spectator loops
+    if (spectatorTimeoutRef.current) clearTimeout(spectatorTimeoutRef.current);
+    if (sparringTimeoutRef.current) clearTimeout(sparringTimeoutRef.current);
+    setIsSpectating(false);
+
+    // 4. Clear active/collided speaker visual states
+    setActiveSpeakerId(null);
+    setInterruptedSpeakerId(null);
   };
 
   return (
-    <div className={`app-container ${heatStage === 'boiling' ? 'animate-tremor' : ''}`}>
+    <div className="app-container">
       {/* Top Header */}
       <Header
         mode={mode}
@@ -375,22 +414,26 @@ export function App() {
         heatScore={heatScore}
         heatStage={heatStage}
         onOpenZeroModal={() => setShowZeroModal(true)}
+        isArguing={isArguing}
+        onStopArgue={handleStopArgue}
+        onRestartArgue={mode === 'spectator' ? handleRestartSpectator : resetDebateState}
+        canRestart={!isArguing && (spectatorStepRef.current > 0 || messages.length > 0)}
       />
 
       <main className="shell flex-1 py-6 sm:py-8 flex flex-col gap-6">
         {/* Topic Selector & Stance Subtitle */}
-        <section className="bg-[#0B0B0C] border border-[#FAFAF8]/15 rounded-3xl p-5 sm:p-7 flex flex-col gap-4 shadow-2xl relative overflow-hidden">
+        <section className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col gap-4 shadow-sm relative">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#CCFF00]" />
-              <span className="font-mono text-xs uppercase tracking-widest text-[#FAFAF8]/60 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span className="font-display text-xs uppercase tracking-wider text-slate-700 font-extrabold">
                 Active Dispute Arena
               </span>
             </div>
 
             {/* Quick Topic Chooser */}
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[0.65rem] uppercase tracking-wider text-[#FAFAF8]/40 hidden sm:inline">
+              <span className="text-xs uppercase tracking-wider text-slate-500 font-bold hidden sm:inline">
                 Topic:
               </span>
               <select
@@ -399,10 +442,10 @@ export function App() {
                   const t = DEBATE_TOPICS.find((dt) => dt.id === e.target.value);
                   if (t) handleSelectTopic(t);
                 }}
-                className="bg-[#FAFAF8]/10 text-[#FAFAF8] border border-[#FAFAF8]/20 rounded-xl px-3 py-1.5 font-mono text-xs focus:outline-none focus:border-[#CCFF00] cursor-pointer"
+                className="bg-slate-50 text-slate-900 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 cursor-pointer shadow-2xs max-w-full sm:max-w-md"
               >
                 {DEBATE_TOPICS.map((t) => (
-                  <option key={t.id} value={t.id} className="bg-[#0B0B0C] text-[#FAFAF8]">
+                  <option key={t.id} value={t.id} className="bg-white text-slate-900 font-medium">
                     {t.title}
                   </option>
                 ))}
@@ -410,45 +453,71 @@ export function App() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-[#FAFAF8]">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="font-display text-2xl sm:text-3.5xl font-black tracking-tight text-slate-900 leading-tight">
               {topic.title}
             </h1>
-            <p className="font-mono text-xs sm:text-sm text-[#FAFAF8]/60 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 font-normal">
               Two debaters, zero shared languages. Live speech barge-ins, tension escalation, and real-time persuasion.
             </p>
           </div>
 
-          {/* Spectator Mode Play/Pause Bar */}
+          {/* Spectator Mode Play/Pause/Restart Bar */}
           {mode === 'spectator' && (
-            <div className="mt-2 pt-3 border-t border-[#FAFAF8]/10 flex items-center justify-between">
+            <div className="mt-2 pt-3.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs uppercase tracking-wider text-[#CCFF00] font-bold">
-                  {isSpectating ? '▶ Live Simulation Clashing...' : '⏸ Simulation Paused'}
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="font-display text-xs uppercase tracking-wider text-slate-900 font-bold">
+                  {isSpectating
+                    ? '▶ Live Clash In Progress...'
+                    : spectatorStepRef.current > 0
+                    ? `⏸ Live Clash Stopped (Step ${spectatorStepRef.current})`
+                    : '⏸ Ready to Start Clash'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 {isSpectating ? (
                   <button
                     onClick={handleStopSpectator}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full font-mono text-xs uppercase bg-[#FAFAF8]/10 text-[#FAFAF8] hover:bg-[#FAFAF8]/20 transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-all shadow-xs"
+                    title="Stop the current live argument"
                   >
-                    <Pause className="w-3.5 h-3.5" />
-                    <span>Pause</span>
+                    <Square className="w-3.5 h-3.5 fill-current" />
+                    <span>Stop Argue</span>
                   </button>
+                ) : spectatorStepRef.current > 0 ? (
+                  <>
+                    <button
+                      onClick={handleResumeSpectator}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs uppercase bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 transition-all shadow-xs"
+                      title="Resume argument where you left off"
+                    >
+                      <Play className="w-3.5 h-3.5 text-white" />
+                      <span>Resume Argue</span>
+                    </button>
+                    <button
+                      onClick={handleRestartSpectator}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs uppercase bg-slate-900 text-white font-extrabold hover:bg-slate-800 transition-all shadow-xs"
+                      title="Restart argument from the beginning"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Restart From Beginning</span>
+                    </button>
+                  </>
                 ) : (
                   <button
                     onClick={handleStartSpectator}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full font-mono text-xs uppercase bg-[#CCFF00] text-black font-extrabold hover:scale-105 transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs uppercase bg-slate-900 text-white font-extrabold hover:bg-slate-800 transition-all shadow-xs"
+                    title="Start live simulation clash"
                   >
-                    <Play className="w-3.5 h-3.5" />
+                    <Play className="w-3.5 h-3.5 text-amber-400" />
                     <span>Play AI Clash</span>
                   </button>
                 )}
                 <button
                   onClick={resetDebateState}
-                  className="p-1.5 rounded-full bg-[#FAFAF8]/10 text-[#FAFAF8] hover:bg-[#FAFAF8]/20 transition-all"
-                  title="Reset debate"
+                  className="p-2 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all border border-slate-200"
+                  title="Reset debate state"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
@@ -501,6 +570,8 @@ export function App() {
               onToggleMic={() => handleToggleMic(debaterA.id)}
               onBargeIn={() => handleBargeIn(debaterA.id)}
               onSendInterjection={(text) => handleSendUtterance(debaterA.id, text, true)}
+              onStop={handleStopArgue}
+              isSpeaking={activeSpeakerId === debaterA.id}
             />
 
             {mode === 'split-duo' ? (
@@ -511,20 +582,33 @@ export function App() {
                 onToggleMic={() => handleToggleMic(debaterB.id)}
                 onBargeIn={() => handleBargeIn(debaterB.id)}
                 onSendInterjection={(text) => handleSendUtterance(debaterB.id, text, true)}
+                onStop={handleStopArgue}
+                isSpeaking={activeSpeakerId === debaterB.id}
               />
             ) : (
-              <div className="bg-[#0B0B0C] border border-[#FAFAF8]/10 rounded-2xl p-5 flex flex-col justify-between">
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-wider text-[#CCFF00] font-bold block mb-1">
-                    AI Sparring Partner: {debaterB.name} ({debaterB.language.toUpperCase()})
-                  </span>
-                  <p className="text-xs text-[#FAFAF8]/70 leading-relaxed font-mono">
-                    Jean-Luc will aggressively challenge your points in French, interrupt when you pause, and concede ground when you provide irrefutable evidence.
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-sm">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-display text-xs uppercase tracking-wider text-slate-800 font-extrabold flex items-center gap-1.5">
+                      <Bot className="w-4 h-4 text-blue-600" />
+                      <span>AI Sparring Partner: {debaterB.name}</span>
+                    </span>
+                    <span className="text-[0.68rem] font-bold uppercase tracking-wider bg-blue-50 text-blue-800 border border-blue-200/90 px-2.5 py-0.5 rounded-full">
+                      {debaterB.language.toUpperCase()} Voice
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal pt-1">
+                    Jean-Luc will aggressively challenge your premises in French, cut in when you pause, and concede ground when you present irrefutable evidence.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#FAFAF8]/10 flex items-center justify-between text-xs font-mono text-[#FAFAF8]/50">
-                  <span>Language: {debaterB.language.toUpperCase()}</span>
-                  <span>Auto-Rebuttals Active</span>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 font-semibold">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Auto-Rebuttals Active</span>
+                  </span>
+                  <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/80 text-slate-700">
+                    Native Synthesis
+                  </span>
                 </div>
               </div>
             )}
@@ -538,12 +622,12 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#FAFAF8]/10 bg-[#0B0B0C] py-6 px-4 sm:px-8 text-center text-xs font-mono text-[#FAFAF8]/40">
+      <footer className="border-t border-slate-200 bg-white py-6 px-4 sm:px-8 text-center text-xs text-slate-600 font-medium">
         <div className="shell flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>BAHAS (बहस) • Real-Time Cross-Language Argument Arena</span>
           <button
             onClick={() => setShowZeroModal(true)}
-            className="text-[#CCFF00] hover:underline uppercase tracking-wider font-semibold"
+            className="text-slate-900 hover:text-amber-600 hover:underline uppercase tracking-wider font-bold transition-colors"
           >
             Read Chelsie's Three Zero Product Reviews →
           </button>

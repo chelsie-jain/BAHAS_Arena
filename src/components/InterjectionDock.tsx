@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Mic, MicOff, AlertOctagon, CornerDownRight, HandMetal, Sparkles } from 'lucide-react';
+import { Mic, MicOff, AlertOctagon, CornerDownRight, HandMetal, Sparkles, Square } from 'lucide-react';
 import type { LanguageCode } from '../types';
 
 interface InterjectionDockProps {
@@ -10,6 +10,8 @@ interface InterjectionDockProps {
   onBargeIn: () => void;
   onSendInterjection: (text: string) => void;
   disabled?: boolean;
+  onStop?: () => void;
+  isSpeaking?: boolean;
 }
 
 export const InterjectionDock: React.FC<InterjectionDockProps> = ({
@@ -20,6 +22,8 @@ export const InterjectionDock: React.FC<InterjectionDockProps> = ({
   onBargeIn,
   onSendInterjection,
   disabled = false,
+  onStop,
+  isSpeaking = false,
 }) => {
   // Shortcut: Spacebar for quick barge in
   useEffect(() => {
@@ -81,70 +85,86 @@ export const InterjectionDock: React.FC<InterjectionDockProps> = ({
   const cards = getQuickCards();
 
   return (
-    <div className="bg-[#0B0B0C] border border-[#FAFAF8]/15 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xl">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[0.68rem] uppercase tracking-wider text-[#FAFAF8]/60 flex items-center gap-1.5">
-          <HandMetal className="w-3.5 h-3.5 text-[#CCFF00]" />
+        <span className="font-display text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5 font-extrabold">
+          <HandMetal className="w-4 h-4 text-amber-600" />
           <span>Quick Barge-In Deck ({speakerName})</span>
         </span>
-        <span className="font-mono text-[0.62rem] text-[#FAFAF8]/40 uppercase tracking-widest hidden sm:inline">
-          [SPACE] to interrupt
+        <span className="text-xs text-slate-500 font-semibold hidden sm:inline bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/80">
+          Press [SPACE] to interrupt
         </span>
       </div>
 
-      {/* Main Action Strip: Barge-In Button + Live Mic */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr] gap-2.5">
+      {/* Main Action Strip: Barge-In Button + Live Mic + Stop Button */}
+      <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_auto] gap-2.5">
         {/* Massive Barge-In / Interrupt Trigger */}
         <button
           onClick={onBargeIn}
           disabled={disabled}
-          className="group relative flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#FF5C00] to-[#FFAA00] text-[#0B0B0C] py-3.5 px-5 rounded-xl font-mono text-xs uppercase tracking-wider font-extrabold shadow-lg hover:shadow-[0_0_20px_rgba(255,92,0,0.5)] active:scale-95 transition-all disabled:opacity-40"
+          className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white py-3 px-4 rounded-2xl text-xs uppercase tracking-wider font-extrabold shadow-md hover:shadow-red-500/25 active:scale-95 transition-all disabled:opacity-40"
         >
           <AlertOctagon className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-          <span>CUT IN / INTERRUPT NOW!</span>
+          <span>CUT IN / INTERRUPT!</span>
         </button>
 
         {/* Live Mic Voice Toggle */}
         <button
           onClick={onToggleMic}
           disabled={disabled}
-          className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-mono text-xs uppercase tracking-wider font-bold border transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-2xl text-xs uppercase tracking-wider font-bold border transition-all ${
             isListening
-              ? 'bg-[#CCFF00] text-[#0B0B0C] border-[#CCFF00] shadow-[0_0_15px_rgba(204,255,0,0.4)] animate-pulse'
-              : 'bg-[#FAFAF8]/[0.05] text-[#FAFAF8] border-[#FAFAF8]/20 hover:border-[#CCFF00]/50 hover:text-[#CCFF00]'
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-md animate-pulse'
+              : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200 hover:border-slate-300'
           }`}
         >
           {isListening ? (
             <>
-              <Mic className="w-4 h-4 text-black animate-spin" />
-              <span>Listening... (Mute)</span>
+              <Mic className="w-4 h-4 text-white animate-spin" />
+              <span>Mute Mic</span>
             </>
           ) : (
             <>
-              <MicOff className="w-4 h-4" />
-              <span>Activate Mic</span>
+              <MicOff className="w-4 h-4 text-slate-600" />
+              <span>Mic</span>
             </>
           )}
         </button>
+
+        {/* Dedicated Stop Argue Button */}
+        {onStop && (
+          <button
+            onClick={onStop}
+            className={`flex items-center justify-center gap-1.5 py-3 px-3.5 rounded-2xl text-xs uppercase tracking-wider font-bold border transition-all ${
+              isSpeaking || isListening
+                ? 'bg-red-50 text-red-700 border-red-300 hover:bg-red-100 shadow-2xs animate-pulse'
+                : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+            }`}
+            title="Stop current speech, clear mic, and halt dispute"
+          >
+            <Square className="w-3.5 h-3.5 fill-current text-red-600" />
+            <span className="hidden sm:inline">Stop</span>
+          </button>
+        )}
       </div>
 
-      {/* Quick Tactical Interjection Pills */}
+      {/* Quick Tactical Interjection Pills with Full Hindi Clearance */}
       <div className="flex flex-wrap items-center gap-2 pt-1">
         {cards.map((c, i) => (
           <button
             key={i}
             onClick={() => onSendInterjection(c.text)}
             disabled={disabled}
-            className={`px-3 py-1.5 rounded-full font-mono text-[0.68rem] tracking-wider transition-all border flex items-center gap-1.5 active:scale-95 ${
+            className={`px-3.5 py-2.5 rounded-xl text-xs tracking-wide transition-all border flex items-center gap-1.5 active:scale-95 font-bold shadow-2xs leading-normal ${
               c.type === 'concession'
-                ? 'bg-[#3B1B4E] border-[#CCFF00]/40 text-[#CCFF00] hover:bg-[#CCFF00] hover:text-black'
-                : 'bg-[#FAFAF8]/[0.04] border-[#FAFAF8]/15 text-[#FAFAF8]/80 hover:border-[#FF5C00] hover:text-[#FF5C00]'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-amber-400 hover:text-amber-800 hover:bg-amber-50'
             }`}
           >
             {c.type === 'concession' ? (
-              <Sparkles className="w-3 h-3 text-[#CCFF00]" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             ) : (
-              <CornerDownRight className="w-3 h-3 text-current" />
+              <CornerDownRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
             )}
             <span>{c.label}</span>
           </button>

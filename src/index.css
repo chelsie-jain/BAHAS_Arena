@@ -1,19 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
 
 :root {
-  --ink: #0B0B0C;
-  --bone: #FAFAF8;
-  --zip-plum: #3B1B4E;
-  --zip-lime: #CCFF00;
-  --zip-amber: #FFAA00;
-  --zip-orange: #FF5C00;
-  --paper: #121316;
-  --line: rgba(250, 250, 248, 0.12);
+  --ink: #0F172A;
+  --bone: #F8FAFC;
+  --paper: #FFFFFF;
+  --line: rgba(15, 23, 42, 0.08);
 
-  font-family: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: dark;
-  color: var(--bone);
-  background-color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
+  color: #0F172A;
+  background-color: #F8FAFC;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -27,16 +29,27 @@
 }
 
 body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
-  background-color: var(--ink);
-  color: var(--bone);
+  background-color: #F8FAFC;
+  color: #0F172A;
   min-height: 100vh;
   overflow-x: hidden;
+  line-height: 1.5;
   background-image: 
-    radial-gradient(circle at 15% 20%, rgba(59, 27, 78, 0.35) 0%, transparent 40%),
-    radial-gradient(circle at 85% 75%, rgba(204, 255, 0, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(255, 92, 0, 0.05) 0%, transparent 50%);
+    radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
   background-attachment: fixed;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 .font-mono {
@@ -48,29 +61,15 @@ body {
   width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(250, 250, 248, 0.03);
+  background: rgba(15, 23, 42, 0.03);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(250, 250, 248, 0.15);
+  background: rgba(15, 23, 42, 0.15);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(204, 255, 0, 0.4);
-}
-
-/* Vibrations & Tremors for Boiling Point */
-@keyframes screen-shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  20% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-  40% { transform: translate(-2px, 0px) rotate(0.5deg); }
-  60% { transform: translate(2px, 1px) rotate(0deg); }
-  80% { transform: translate(1px, -1px) rotate(0.5deg); }
-  100% { transform: translate(1px, 1px) rotate(0deg); }
-}
-
-.animate-tremor {
-  animation: screen-shake 0.35s infinite;
+  background: rgba(15, 23, 42, 0.3);
 }
 
 @keyframes fade-in {

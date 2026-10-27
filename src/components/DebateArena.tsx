@@ -65,67 +65,67 @@ export const DebateArena: React.FC<DebateArenaProps> = ({
       {/* Collision Flash Overlay when an Interruption occurs */}
       {(wasInterruptedA || wasInterruptedB) && (
         <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
-          <div className="bg-[#FF5C00] text-black font-mono font-black text-xs sm:text-sm uppercase tracking-widest px-4 py-2 rounded-full shadow-[0_0_30px_rgba(255,92,0,0.8)] animate-ping">
-            ⚡ BARGE-IN COLLISION DETECTED
+          <div className="bg-gradient-to-r from-red-600 to-orange-500 text-white font-display font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_0_35px_rgba(239,68,68,0.7)] animate-bounce flex items-center gap-2">
+            <span>⚡ BARGE-IN COLLISION DETECTED</span>
           </div>
         </div>
       )}
 
       {/* ===================== SIDE A: DEBATER 1 ===================== */}
       <div
-        className={`flex flex-col justify-between rounded-3xl p-5 sm:p-6 transition-all duration-300 border relative overflow-hidden ${
+        className={`flex flex-col gap-4 rounded-3xl p-5 sm:p-6 transition-all duration-300 border ${
           isSpeakingA
-            ? 'bg-[#3B1B4E]/25 border-[#FFAA00] shadow-[0_0_25px_rgba(255,170,0,0.25)]'
+            ? 'bg-amber-50/50 border-amber-400 ring-2 ring-amber-400/40 shadow-md'
             : wasInterruptedA
-            ? 'bg-[#FF5C00]/10 border-[#FF5C00] shadow-[0_0_20px_rgba(255,92,0,0.3)]'
-            : 'bg-[#FAFAF8]/[0.03] border-[#FAFAF8]/10'
+            ? 'bg-red-50/70 border-red-400 ring-2 ring-red-400/40 shadow-md'
+            : 'bg-white border-slate-200/90 shadow-sm'
         }`}
       >
         {/* Debater Profile & Language Selector */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#FAFAF8]/10">
+        <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
           <div className="flex items-center gap-3">
             {/* Avatar with speaking ring */}
             <div className="relative">
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-mono font-black text-lg border-2 transition-all ${
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg border-2 transition-all ${
                   isSpeakingA
-                    ? 'border-[#FFAA00] bg-[#FFAA00] text-black shadow-lg scale-105'
-                    : 'border-[#FAFAF8]/20 bg-[#0B0B0C] text-[#FAFAF8]'
+                    ? 'border-amber-500 bg-amber-500 text-white shadow-md scale-105'
+                    : 'border-slate-200 bg-slate-100 text-slate-800'
                 }`}
               >
                 {debaterA.avatar}
               </div>
               {isSpeakingA && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#FFAA00] border-2 border-[#0B0B0C] animate-ping" />
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-white animate-ping" />
               )}
             </div>
 
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-[#FAFAF8]">
+                <span className="font-display text-base font-extrabold text-slate-900">
                   {debaterA.name}
                 </span>
-                <span className="font-mono text-[0.62rem] uppercase px-2 py-0.5 rounded-full bg-[#FFAA00]/20 text-[#FFAA00] border border-[#FFAA00]/40 font-bold">
+                <span className="text-[0.65rem] uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-extrabold tracking-wide">
                   Side A
                 </span>
               </div>
-              <span className="font-mono text-[0.68rem] text-[#FAFAF8]/50 truncate max-w-[200px]">
+              <span className="text-xs text-slate-500 font-medium leading-tight mt-0.5">
                 {debaterA.stanceTitle}
               </span>
             </div>
           </div>
 
           {/* Language Selector Dropdown */}
-          <div className="flex items-center gap-1.5 bg-[#0B0B0C] px-2.5 py-1.5 rounded-xl border border-[#FAFAF8]/15">
-            <Globe className="w-3.5 h-3.5 text-[#FFAA00]" />
+          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-amber-600" />
             <select
               value={debaterA.language}
               onChange={(e) => onUpdateDebaterLang(debaterA.id, e.target.value as LanguageCode)}
               disabled={isSpectatorMode}
-              className="bg-transparent font-mono text-xs text-[#FAFAF8] focus:outline-none cursor-pointer uppercase"
+              className="bg-transparent text-xs text-slate-800 focus:outline-none cursor-pointer uppercase font-semibold"
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code} className="bg-[#0B0B0C] text-[#FAFAF8]">
+                <option key={lang.code} value={lang.code} className="bg-white text-slate-900">
                   {lang.flag} {lang.name} ({lang.nativeName})
                 </option>
               ))}
@@ -134,34 +134,34 @@ export const DebateArena: React.FC<DebateArenaProps> = ({
         </div>
 
         {/* Live Audio Visualizer */}
-        <div className="my-3">
+        <div>
           <SoundwaveCanvas
             isSpeaking={isSpeakingA}
             heatScore={heatScore}
             isInterrupted={wasInterruptedA}
-            activeColor="#FFAA00"
+            activeColor="#D97706"
           />
         </div>
 
         {/* Live Speaking Stream & Subtitle Window */}
-        <div className="min-h-[160px] flex flex-col justify-end gap-3 my-2 bg-[#0B0B0C]/80 rounded-2xl p-4 border border-[#FAFAF8]/10">
+        <div className="flex flex-col gap-3 bg-slate-50/90 rounded-2xl p-4 border border-slate-200/90">
           {wasInterruptedA && (
-            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#FF5C00] bg-[#FF5C00]/10 border border-[#FF5C00]/30 px-3 py-1.5 rounded-xl animate-pulse">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center gap-2 text-xs font-bold text-red-700 bg-red-100 border border-red-300 px-3 py-1.5 rounded-xl animate-pulse">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>CUT OFF MID-SENTENCE BY OPPONENT!</span>
             </div>
           )}
 
           {/* Native Language Utterance */}
           <div className="flex flex-col gap-1">
-            <span className="font-mono text-[0.62rem] uppercase tracking-wider text-[#FFAA00]">
+            <span className="font-display text-[0.68rem] uppercase tracking-wider text-amber-800 font-bold">
               Original ({getLangObj(debaterA.language).name}):
             </span>
-            <p className="text-sm sm:text-base font-medium text-[#FAFAF8] leading-relaxed">
+            <p className="text-sm sm:text-base font-semibold text-slate-900 leading-relaxed min-h-[2rem]">
               {currentMessageA ? (
                 <span>{currentMessageA}</span>
               ) : (
-                <span className="text-[#FAFAF8]/30 italic font-mono text-xs">
+                <span className="text-slate-400 italic text-xs font-normal">
                   {isSpeakingA ? 'Speaking live...' : 'Waiting for turn or interruption...'}
                 </span>
               )}
@@ -169,99 +169,102 @@ export const DebateArena: React.FC<DebateArenaProps> = ({
           </div>
 
           {/* Real-Time Live Translation for Opponent */}
-          <div className="pt-2 border-t border-[#FAFAF8]/10 flex flex-col gap-1">
-            <span className="font-mono text-[0.62rem] uppercase tracking-wider text-[#CCFF00] flex items-center gap-1.5">
-              <Volume2 className="w-3 h-3" />
+          <div className="pt-2.5 border-t border-slate-200 flex flex-col gap-1.5">
+            <span className="font-display text-[0.68rem] uppercase tracking-wider text-blue-800 font-bold flex items-center gap-1.5">
+              <Volume2 className="w-3.5 h-3.5 text-blue-600" />
               <span>Live Translation into {getLangObj(debaterB.language).name}:</span>
             </span>
-            <p className="text-xs sm:text-sm font-mono text-[#CCFF00] bg-[#CCFF00]/10 p-2.5 rounded-xl border border-[#CCFF00]/25">
+            <div className="text-xs sm:text-sm font-medium text-slate-900 bg-blue-50/90 p-3 rounded-xl border border-blue-200/90 min-h-[3rem] flex items-center leading-relaxed">
               {translatedMessageA ? (
                 translatedMessageA
               ) : (
-                <span className="text-[#CCFF00]/40 italic">
+                <span className="text-slate-400 italic font-normal">
                   Subtitles stream as words are spoken...
                 </span>
               )}
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* Manual Rebuttal Input (for non-mic typing) */}
+        {/* Manual Rebuttal Input Dock (grounded container with no edge-clipping) */}
         {!isSpectatorMode && (
-          <form onSubmit={handleSendA} className="mt-3 flex items-center gap-2">
-            <input
-              type="text"
-              value={inputTextA}
-              onChange={(e) => setInputTextA(e.target.value)}
-              placeholder={`Argue in ${getLangObj(debaterA.language).name}...`}
-              className="flex-1 bg-[#0B0B0C] border border-[#FAFAF8]/15 rounded-xl px-3.5 py-2.5 text-xs text-[#FAFAF8] placeholder-[#FAFAF8]/30 font-mono focus:outline-none focus:border-[#FFAA00]"
-            />
-            <button
-              type="submit"
-              disabled={!inputTextA.trim()}
-              className="bg-[#FFAA00] text-black px-3.5 py-2.5 rounded-xl font-mono text-xs uppercase font-bold hover:scale-105 active:scale-95 disabled:opacity-30 transition-transform"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </form>
+          <div className="pt-1">
+            <form onSubmit={handleSendA} className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xs focus-within:ring-2 focus-within:ring-amber-500/20 focus-within:border-amber-500 transition-all">
+              <input
+                type="text"
+                value={inputTextA}
+                onChange={(e) => setInputTextA(e.target.value)}
+                placeholder={`Argue in ${getLangObj(debaterA.language).name}...`}
+                className="flex-1 bg-transparent px-3 py-1.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={!inputTextA.trim()}
+                className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase active:scale-95 disabled:opacity-40 transition-all shadow-xs shrink-0 flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Send</span>
+              </button>
+            </form>
+          </div>
         )}
       </div>
 
       {/* ===================== SIDE B: DEBATER 2 ===================== */}
       <div
-        className={`flex flex-col justify-between rounded-3xl p-5 sm:p-6 transition-all duration-300 border relative overflow-hidden ${
+        className={`flex flex-col gap-4 rounded-3xl p-5 sm:p-6 transition-all duration-300 border ${
           isSpeakingB
-            ? 'bg-[#3B1B4E]/25 border-[#CCFF00] shadow-[0_0_25px_rgba(204,255,0,0.25)]'
+            ? 'bg-blue-50/50 border-blue-400 ring-2 ring-blue-400/40 shadow-md'
             : wasInterruptedB
-            ? 'bg-[#FF5C00]/10 border-[#FF5C00] shadow-[0_0_20px_rgba(255,92,0,0.3)]'
-            : 'bg-[#FAFAF8]/[0.03] border-[#FAFAF8]/10'
+            ? 'bg-red-50/70 border-red-400 ring-2 ring-red-400/40 shadow-md'
+            : 'bg-white border-slate-200/90 shadow-sm'
         }`}
       >
         {/* Debater Profile & Language Selector */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#FAFAF8]/10">
+        <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
           <div className="flex items-center gap-3">
             {/* Avatar with speaking ring */}
             <div className="relative">
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-mono font-black text-lg border-2 transition-all ${
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg border-2 transition-all ${
                   isSpeakingB
-                    ? 'border-[#CCFF00] bg-[#CCFF00] text-black shadow-lg scale-105'
-                    : 'border-[#FAFAF8]/20 bg-[#0B0B0C] text-[#FAFAF8]'
+                    ? 'border-blue-600 bg-blue-600 text-white shadow-md scale-105'
+                    : 'border-slate-200 bg-slate-100 text-slate-800'
                 }`}
               >
                 {debaterB.avatar}
               </div>
               {isSpeakingB && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#CCFF00] border-2 border-[#0B0B0C] animate-ping" />
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white animate-ping" />
               )}
             </div>
 
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm font-bold text-[#FAFAF8]">
+                <span className="font-display text-base font-extrabold text-slate-900">
                   {debaterB.name}
                 </span>
-                <span className="font-mono text-[0.62rem] uppercase px-2 py-0.5 rounded-full bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/40 font-bold">
+                <span className="text-[0.65rem] uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 font-extrabold tracking-wide">
                   Side B
                 </span>
               </div>
-              <span className="font-mono text-[0.68rem] text-[#FAFAF8]/50 truncate max-w-[200px]">
+              <span className="text-xs text-slate-500 font-medium leading-tight mt-0.5">
                 {debaterB.stanceTitle}
               </span>
             </div>
           </div>
 
           {/* Language Selector Dropdown */}
-          <div className="flex items-center gap-1.5 bg-[#0B0B0C] px-2.5 py-1.5 rounded-xl border border-[#FAFAF8]/15">
-            <Globe className="w-3.5 h-3.5 text-[#CCFF00]" />
+          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-blue-600" />
             <select
               value={debaterB.language}
               onChange={(e) => onUpdateDebaterLang(debaterB.id, e.target.value as LanguageCode)}
               disabled={isSpectatorMode}
-              className="bg-transparent font-mono text-xs text-[#FAFAF8] focus:outline-none cursor-pointer uppercase"
+              className="bg-transparent text-xs text-slate-800 focus:outline-none cursor-pointer uppercase font-semibold"
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code} className="bg-[#0B0B0C] text-[#FAFAF8]">
+                <option key={lang.code} value={lang.code} className="bg-white text-slate-900">
                   {lang.flag} {lang.name} ({lang.nativeName})
                 </option>
               ))}
@@ -270,34 +273,34 @@ export const DebateArena: React.FC<DebateArenaProps> = ({
         </div>
 
         {/* Live Audio Visualizer */}
-        <div className="my-3">
+        <div>
           <SoundwaveCanvas
             isSpeaking={isSpeakingB}
             heatScore={heatScore}
             isInterrupted={wasInterruptedB}
-            activeColor="#CCFF00"
+            activeColor="#2563EB"
           />
         </div>
 
         {/* Live Speaking Stream & Subtitle Window */}
-        <div className="min-h-[160px] flex flex-col justify-end gap-3 my-2 bg-[#0B0B0C]/80 rounded-2xl p-4 border border-[#FAFAF8]/10">
+        <div className="flex flex-col gap-3 bg-slate-50/90 rounded-2xl p-4 border border-slate-200/90">
           {wasInterruptedB && (
-            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#FF5C00] bg-[#FF5C00]/10 border border-[#FF5C00]/30 px-3 py-1.5 rounded-xl animate-pulse">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center gap-2 text-xs font-bold text-red-700 bg-red-100 border border-red-300 px-3 py-1.5 rounded-xl animate-pulse">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>CUT OFF MID-SENTENCE BY OPPONENT!</span>
             </div>
           )}
 
           {/* Native Language Utterance */}
           <div className="flex flex-col gap-1">
-            <span className="font-mono text-[0.62rem] uppercase tracking-wider text-[#CCFF00]">
+            <span className="font-display text-[0.68rem] uppercase tracking-wider text-blue-800 font-bold">
               Original ({getLangObj(debaterB.language).name}):
             </span>
-            <p className="text-sm sm:text-base font-medium text-[#FAFAF8] leading-relaxed">
+            <p className="text-sm sm:text-base font-semibold text-slate-900 leading-relaxed min-h-[2rem]">
               {currentMessageB ? (
                 <span>{currentMessageB}</span>
               ) : (
-                <span className="text-[#FAFAF8]/30 italic font-mono text-xs">
+                <span className="text-slate-400 italic text-xs font-normal">
                   {isSpeakingB ? 'Speaking live...' : 'Waiting for turn or interruption...'}
                 </span>
               )}
@@ -305,41 +308,44 @@ export const DebateArena: React.FC<DebateArenaProps> = ({
           </div>
 
           {/* Real-Time Live Translation for Opponent */}
-          <div className="pt-2 border-t border-[#FAFAF8]/10 flex flex-col gap-1">
-            <span className="font-mono text-[0.62rem] uppercase tracking-wider text-[#FFAA00] flex items-center gap-1.5">
-              <Volume2 className="w-3 h-3" />
+          <div className="pt-2.5 border-t border-slate-200 flex flex-col gap-1.5">
+            <span className="font-display text-[0.68rem] uppercase tracking-wider text-amber-800 font-bold flex items-center gap-1.5">
+              <Volume2 className="w-3.5 h-3.5 text-amber-600" />
               <span>Live Translation into {getLangObj(debaterA.language).name}:</span>
             </span>
-            <p className="text-xs sm:text-sm font-mono text-[#FFAA00] bg-[#FFAA00]/10 p-2.5 rounded-xl border border-[#FFAA00]/25">
+            <div className="text-xs sm:text-sm font-medium text-slate-900 bg-amber-50/90 p-3 rounded-xl border border-amber-200/90 min-h-[3rem] flex items-center leading-relaxed">
               {translatedMessageB ? (
                 translatedMessageB
               ) : (
-                <span className="text-[#FFAA00]/40 italic">
+                <span className="text-slate-400 italic font-normal">
                   Subtitles stream as words are spoken...
                 </span>
               )}
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* Manual Rebuttal Input */}
+        {/* Manual Rebuttal Input Dock (grounded container with no edge-clipping) */}
         {!isSpectatorMode && (
-          <form onSubmit={handleSendB} className="mt-3 flex items-center gap-2">
-            <input
-              type="text"
-              value={inputTextB}
-              onChange={(e) => setInputTextB(e.target.value)}
-              placeholder={`Argue in ${getLangObj(debaterB.language).name}...`}
-              className="flex-1 bg-[#0B0B0C] border border-[#FAFAF8]/15 rounded-xl px-3.5 py-2.5 text-xs text-[#FAFAF8] placeholder-[#FAFAF8]/30 font-mono focus:outline-none focus:border-[#CCFF00]"
-            />
-            <button
-              type="submit"
-              disabled={!inputTextB.trim()}
-              className="bg-[#CCFF00] text-black px-3.5 py-2.5 rounded-xl font-mono text-xs uppercase font-bold hover:scale-105 active:scale-95 disabled:opacity-30 transition-transform"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </form>
+          <div className="pt-1">
+            <form onSubmit={handleSendB} className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-300 shadow-xs focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-600 transition-all">
+              <input
+                type="text"
+                value={inputTextB}
+                onChange={(e) => setInputTextB(e.target.value)}
+                placeholder={`Argue in ${getLangObj(debaterB.language).name}...`}
+                className="flex-1 bg-transparent px-3 py-1.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={!inputTextB.trim()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase active:scale-95 disabled:opacity-40 transition-all shadow-xs shrink-0 flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Send</span>
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </div>

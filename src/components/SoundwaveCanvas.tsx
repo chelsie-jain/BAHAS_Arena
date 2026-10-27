@@ -38,29 +38,30 @@ export const SoundwaveCanvas: React.FC<SoundwaveCanvasProps> = ({
 
         if (isInterrupted) {
           // Sharp irregular jagged spikes during interruption collision
-          height = Math.sin(phase * 4 + i) * 28 + Math.random() * 20;
+          height = Math.sin(phase * 4 + i) * 32 + Math.random() * 22;
         } else if (isSpeaking) {
           // Dynamic voice frequency wave modulated by heat
-          const wave1 = Math.sin(phase + i * 0.3) * 16;
-          const wave2 = Math.cos(phase * 1.5 + i * 0.15) * 12;
-          const heatMultiplier = 1 + (heatScore / 100) * 0.8;
-          height = Math.abs(wave1 + wave2) * heatMultiplier + 4;
+          const wave1 = Math.sin(phase * 2 + i * 0.35) * 18;
+          const wave2 = Math.cos(phase * 2.5 + i * 0.2) * 14;
+          const heatMultiplier = 1 + (heatScore / 100) * 0.9;
+          height = Math.abs(wave1 + wave2) * heatMultiplier + 6;
         } else {
-          // Idle resting baseline
-          height = 3 + Math.sin(phase + i * 0.2) * 2;
+          // Elegant resting studio baseline
+          const wave = Math.sin(phase + i * 0.25) * 6;
+          height = 6 + Math.abs(wave);
         }
 
         const x = i * (barWidth + 2);
         const y = centerY - height / 2;
 
         ctx.fillStyle = isInterrupted
-          ? '#FF5C00'
+          ? '#DC2626'
           : isSpeaking
           ? activeColor
-          : 'rgba(250, 250, 248, 0.15)';
+          : 'rgba(15, 23, 42, 0.18)';
 
         ctx.beginPath();
-        ctx.roundRect(x, y, barWidth, height, 2);
+        ctx.roundRect(x, y, barWidth, Math.max(4, height), 2);
         ctx.fill();
       }
 
@@ -75,7 +76,7 @@ export const SoundwaveCanvas: React.FC<SoundwaveCanvasProps> = ({
   }, [isSpeaking, heatScore, isInterrupted, activeColor]);
 
   return (
-    <div className="w-full h-12 flex items-center justify-center bg-[#0B0B0C]/60 rounded-xl overflow-hidden border border-[#FAFAF8]/10 px-2">
+    <div className="w-full h-12 flex items-center justify-center bg-slate-50/80 rounded-2xl overflow-hidden border border-slate-200/80 px-3">
       <canvas
         ref={canvasRef}
         width={420}
